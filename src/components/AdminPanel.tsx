@@ -1,9 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Product, Language, Category } from "../types";
 import { translations } from "../translations";
-import { db } from "../lib/firebase";
+import { db, auth, storage } from "../lib/firebase";
 import { collection, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { X, Lock, Key, Plus, Trash2, Edit2, Upload, AlertCircle, Save } from "lucide-react";
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  User 
+} from "firebase/auth";
+import { 
+  ref as storageRef, 
+  uploadString, 
+  getDownloadURL 
+} from "firebase/storage";
+import { X, Lock, Key, Plus, Trash2, Edit2, Upload, AlertCircle, Save, LogIn } from "lucide-react";
 
 // Convert and compress uploaded images locally using HTML5 canvas
 const compressImage = (base64Str: string, maxWidth = 800, maxHeight = 800, quality = 0.7): Promise<string> => {
@@ -47,6 +61,54 @@ const compressImage = (base64Str: string, maxWidth = 800, maxHeight = 800, quali
   });
 };
 
+// Firestore Error Handler according to security guidelines
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  }
+}
+
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+        providerId: provider.providerId,
+        email: provider.email,
+      })) || []
+    },
+    operationType,
+    path
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
 interface AdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -63,10 +125,12 @@ export default function AdminPanel({
   const t = translations[currentLang];
   const isRtl = currentLang === "ar";
 
-  // Auth gate state
+  // Auth gate state backed securely by Firebase Authentication
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   // Form management states
   const [isEditing, setIsEditing] = useState(false);
@@ -87,9 +151,35 @@ export default function AdminPanel({
   const [imageFileError, setImageFileError] = useState("");
   const [isCompressing, setIsCompressing] = useState(false);
 
+  // Storage Upload state
+  const [pendingImageBase64, setPendingImageBase64] = useState<string | null>(null);
+  const [isUploadingToStorage, setIsUploadingToStorage] = useState(false);
+
   // Track product deletion state inline to avoid window.confirm blocking in iframe
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+  // SECURE AUTH PERSISTENCE: Listen to Firebase Auth state on load and preserve the session
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser && currentUser.email) {
+        const email = currentUser.email.toLowerCase();
+        if (
+          email === "isallahdin@gmail.com" ||
+          email === "admin@arganoble.com" ||
+          email === "ayoub@arganoble.com"
+        ) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Auto-hide status message after 4 seconds
   const showStatus = (text: string, type: "success" | "error") => {
@@ -101,25 +191,100 @@ export default function AdminPanel({
 
   if (!isOpen) return null;
 
-  // Handle PIN Validation
-  const handlePinSubmit = (e: React.FormEvent) => {
+  // Handle Secure PIN Login mapping to Firebase Auth
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPinError(false);
+
     if (pinInput === "1232026") {
-      setIsAuthenticated(true);
-      setPinError(false);
+      setIsLoggingIn(true);
+      const email = "admin@arganoble.com";
+      const password = "password_1232026";
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        showStatus(currentLang === "ar" ? "تم تسجيل الدخول كمدير بنجاح!" : "Logged in as Admin successfully!", "success");
+      } catch (err: any) {
+        console.log("Admin account not found or credentials invalid. Attempting auto-registration...", err);
+        try {
+          await createUserWithEmailAndPassword(auth, email, password);
+          showStatus(currentLang === "ar" ? "تم إنشاء وتأكيد حساب المدير بنجاح!" : "Admin account registered and authenticated!", "success");
+        } catch (regErr: any) {
+          console.error("Firebase Registration Error:", regErr);
+          setPinError(true);
+          showStatus(
+            currentLang === "ar"
+              ? "فشل تسجيل الدخول: " + regErr.message
+              : "Authentication mapping failed: " + regErr.message,
+            "error"
+          );
+        }
+      } finally {
+        setIsLoggingIn(false);
+        setPinInput("");
+      }
     } else {
       setPinError(true);
       setPinInput("");
     }
   };
 
-  // Convert uploaded image to compressed Base64 string
+  // Handle Secure Google Sign In for Admin `isallahdin@gmail.com`
+  const handleGoogleSignIn = async () => {
+    setIsLoggingIn(true);
+    setPinError(false);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const email = result.user.email?.toLowerCase();
+      
+      if (
+        email === "isallahdin@gmail.com" ||
+        email === "admin@arganoble.com" ||
+        email === "ayoub@arganoble.com"
+      ) {
+        showStatus(currentLang === "ar" ? "تم تسجيل الدخول بجوجل بنجاح!" : "Signed in with Google successfully!", "success");
+      } else {
+        await signOut(auth);
+        showStatus(
+          currentLang === "ar" 
+            ? "عذراً، هذا الحساب ليس مسجلاً كمدير." 
+            : "Sorry, this account is not registered as an administrator.",
+          "error"
+        );
+      }
+    } catch (err: any) {
+      console.error("Google Sign-In Error:", err);
+      showStatus(
+        currentLang === "ar"
+          ? "فشل تسجيل الدخول بجوجل: " + err.message
+          : "Google Sign-In failed: " + err.message,
+        "error"
+      );
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  // Secure Sign-Out Handlers
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setIsAuthenticated(false);
+      resetForm();
+      showStatus(currentLang === "ar" ? "تم تسجيل الخروج بنجاح." : "Logged out successfully.", "success");
+    } catch (err: any) {
+      console.error("Logout Error:", err);
+      showStatus("Logout failed: " + err.message, "error");
+    }
+  };
+
+  // Convert uploaded image to compressed Base64 string and hold in pending state
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     setImageFileError("");
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check size limit: Let's allow up to 10MB now since we compress it on client side!
     if (file.size > 10 * 1024 * 1024) {
       setImageFileError(
         currentLang === "ar" 
@@ -136,9 +301,9 @@ export default function AdminPanel({
     reader.onload = async () => {
       if (reader.result) {
         try {
-          // Compress image to maximum 800x800 size and 0.7 quality (takes only ~40KB - 80KB)
           const compressed = await compressImage(reader.result as string, 800, 800, 0.7);
           setImageUrl(compressed);
+          setPendingImageBase64(compressed);
         } catch (err) {
           setImageFileError(
             currentLang === "ar"
@@ -173,6 +338,8 @@ export default function AdminPanel({
     setShippingCost(20);
     setImageUrl("");
     setImageFileError("");
+    setPendingImageBase64(null);
+    setIsUploadingToStorage(false);
   };
 
   // Save (Add or Update) Product to Firestore
@@ -183,7 +350,6 @@ export default function AdminPanel({
     const tEn = titleEn.trim();
     const tFr = titleFr.trim();
 
-    // Check if at least one title is provided
     if (!tAr && !tEn && !tFr) {
       showStatus(
         currentLang === "ar" 
@@ -196,12 +362,10 @@ export default function AdminPanel({
       return;
     }
 
-    // Auto-propagate the filled title to empty languages
     const finalTitleAr = tAr || tEn || tFr;
     const finalTitleEn = tEn || tAr || tFr;
     const finalTitleFr = tFr || tAr || tEn;
 
-    // Optional Descriptions: auto-propagate if one is entered, otherwise keep empty
     const dAr = descAr.trim();
     const dEn = descEn.trim();
     const dFr = descFr.trim();
@@ -209,6 +373,29 @@ export default function AdminPanel({
     const finalDescAr = dAr || dEn || dFr || "";
     const finalDescEn = dEn || dAr || dFr || "";
     const finalDescFr = dFr || dAr || dEn || "";
+
+    setIsUploadingToStorage(true);
+    let finalImageUrl = imageUrl.trim();
+
+    // Secure Image Storage Integration: Upload local Base64 to Firebase Storage on save
+    if (pendingImageBase64 && pendingImageBase64.startsWith("data:")) {
+      try {
+        const fileName = `products/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.jpg`;
+        const storageReference = storageRef(storage, fileName);
+        await uploadString(storageReference, pendingImageBase64, "data_url");
+        finalImageUrl = await getDownloadURL(storageReference);
+      } catch (err: any) {
+        console.error("Firebase Storage Upload Error:", err);
+        showStatus(
+          currentLang === "ar"
+            ? "فشل رفع الصورة إلى التخزين الآمن: " + err.message
+            : "Failed uploading image to secure storage: " + err.message,
+          "error"
+        );
+        setIsUploadingToStorage(false);
+        return;
+      }
+    }
 
     try {
       const productPayload = {
@@ -221,42 +408,54 @@ export default function AdminPanel({
         category,
         price: Number(price),
         shippingCost: Number(shippingCost),
-        imageUrl: imageUrl.trim(),
+        imageUrl: finalImageUrl,
         createdAt: isEditing ? (products.find(p => p.id === editProductId)?.createdAt || Date.now()) : Date.now(),
       };
 
       if (isEditing && editProductId) {
-        // Update product
         const productRef = doc(db, "products", editProductId);
-        await updateDoc(productRef, productPayload);
+        try {
+          await updateDoc(productRef, productPayload);
+        } catch (error) {
+          handleFirestoreError(error, OperationType.UPDATE, `products/${editProductId}`);
+        }
         showStatus(t.adminEditSuccess, "success");
       } else {
-        // Add new product
         const productsCol = collection(db, "products");
-        await addDoc(productsCol, productPayload);
+        try {
+          await addDoc(productsCol, productPayload);
+        } catch (error) {
+          handleFirestoreError(error, OperationType.CREATE, "products");
+        }
         showStatus(t.adminAddSuccess, "success");
       }
 
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Firestore Save Error:", error);
       showStatus(
         currentLang === "ar" 
-          ? "فشل في حفظ المنتج: " + (error as Error).message
-          : "Error saving product: " + (error as Error).message,
+          ? "فشل في حفظ المنتج: " + error.message
+          : "Error saving product: " + error.message,
         "error"
       );
+    } finally {
+      setIsUploadingToStorage(false);
     }
   };
 
-  // Delete Product from Firestore (Executed after inline confirmation)
+  // Delete Product from Firestore with proper error routing
   const executeDeleteProduct = async (prodId: string) => {
     try {
       const productRef = doc(db, "products", prodId);
-      await deleteDoc(productRef);
+      try {
+        await deleteDoc(productRef);
+      } catch (error) {
+        handleFirestoreError(error, OperationType.DELETE, `products/${prodId}`);
+      }
       setDeletingProductId(null);
       showStatus(t.adminDeleteSuccess, "success");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Firestore Delete Error:", error);
       showStatus(
         currentLang === "ar"
@@ -281,6 +480,7 @@ export default function AdminPanel({
     setPrice(prod.price);
     setShippingCost(prod.shippingCost);
     setImageUrl(prod.imageUrl);
+    setPendingImageBase64(null);
     setImageFileError("");
   };
 
@@ -305,8 +505,15 @@ export default function AdminPanel({
           <X className="w-5 h-5" />
         </button>
 
-        {/* AUTHENTICATION GATE: PIN CODE FORM */}
-        {!isAuthenticated ? (
+        {/* AUTH LOADING / PREPARATION SPIN */}
+        {authLoading ? (
+          <div className="py-24 flex flex-col items-center justify-center gap-4 text-center">
+            <div className="w-10 h-10 border-4 border-gray-100 border-t-brand-orange rounded-full animate-spin" />
+            <p className="text-xs font-bold text-gray-400">Verifying administrator session status...</p>
+          </div>
+        ) : !isAuthenticated ? (
+          
+          /* AUTHENTICATION GATE: PIN CODE & GOOGLE SIGN-IN FORM */
           <div className="max-w-md mx-auto py-12 flex flex-col items-center text-center">
             <div className="p-4 bg-orange-50 text-brand-orange border border-orange-100 rounded-full mb-6">
               <Lock className="w-10 h-10 animate-bounce" />
@@ -317,8 +524,8 @@ export default function AdminPanel({
             </h2>
             <p className="text-xs font-semibold text-gray-400 mb-8 leading-relaxed">
               {currentLang === "ar" 
-                ? "هذه المنطقة محمية برمز PIN مخصص للمشرف أيوب كلال لإدارة محتوى المتجر."
-                : "This area is restricted. Authenticate using your 7-digit security PIN."}
+                ? "هذه المنطقة محمية برمز PIN مخصص للمشرف لإدارة محتوى المتجر، أو يمكنك تسجيل الدخول الآمن بحساب Google المعتمد."
+                : "This area is restricted. Authenticate using your 7-digit security PIN, or secure sign-in with your approved Google account."}
             </p>
 
             <form onSubmit={handlePinSubmit} className="w-full space-y-4">
@@ -333,6 +540,7 @@ export default function AdminPanel({
                   onChange={(e) => setPinInput(e.target.value)}
                   className="w-full pl-11 pr-4 py-3.5 bg-gray-50 hover:bg-gray-100/75 border border-gray-200 rounded-2xl text-center text-lg font-black tracking-widest text-gray-900 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
                   autoFocus
+                  disabled={isLoggingIn}
                 />
               </div>
 
@@ -348,18 +556,43 @@ export default function AdminPanel({
                   type="button"
                   onClick={onClose}
                   className="py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm font-bold rounded-xl cursor-pointer"
+                  disabled={isLoggingIn}
                 >
                   {t.adminCancel}
                 </button>
                 <button
                   id="admin-pin-submit"
                   type="submit"
-                  className="py-3 glow-button-orange text-white text-sm font-black rounded-xl cursor-pointer"
+                  className="py-3 glow-button-orange text-white text-sm font-black rounded-xl cursor-pointer flex items-center justify-center gap-2"
+                  disabled={isLoggingIn}
                 >
-                  {t.adminSubmit}
+                  {isLoggingIn && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+                  <span>{t.adminSubmit}</span>
                 </button>
               </div>
             </form>
+
+            {/* Google Sign-In Divider and Button */}
+            <div className="w-full my-6 flex items-center gap-3">
+              <div className="flex-1 h-[1px] bg-gray-100" />
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                {currentLang === "ar" ? "أو" : "OR"}
+              </span>
+              <div className="flex-1 h-[1px] bg-gray-100" />
+            </div>
+
+            <button
+              id="google-signin-btn"
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isLoggingIn}
+              className="w-full py-3 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-sm font-bold rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2.5 shadow-xs"
+            >
+              <LogIn className="w-4 h-4 text-brand-orange" />
+              <span>
+                {currentLang === "ar" ? "تسجيل الدخول بواسطة Google" : "Sign in with Google"}
+              </span>
+            </button>
           </div>
         ) : (
           
@@ -372,19 +605,17 @@ export default function AdminPanel({
                   {t.adminTitle}
                 </h2>
                 <p className={`text-xs text-gray-400 font-semibold mt-1 ${isRtl ? "text-right" : "text-left"}`}>
-                  {currentLang === "ar" ? "أهلاً بك يا أيوب كلال! أضف وعدل منتجات العسل الحر والأركان والأملو." : "Welcome Ayoub kellal! Manage your organic products list in real-time."}
+                  {currentLang === "ar" ? "أهلاً بك في لوحة تحكم المشرف! أضف وعدل منتجات العسل الحر والأركان والأملو بشكل آمن ودائم." : "Welcome to the Admin Panel! Safely and permanently manage your organic products list."}
                 </p>
               </div>
               <button
-                onClick={() => {
-                  setIsAuthenticated(false);
-                  resetForm();
-                }}
+                onClick={handleLogout}
                 className="px-4 py-2 bg-gray-50 hover:bg-rose-50 hover:text-rose-600 text-gray-500 text-xs font-bold border border-gray-100 rounded-xl transition-all cursor-pointer self-start"
               >
                 {currentLang === "ar" ? "تسجيل الخروج" : "Logout"}
               </button>
             </div>
+
 
             {statusMessage && (
               <div 
@@ -603,7 +834,10 @@ export default function AdminPanel({
                         />
                         <button
                           type="button"
-                          onClick={() => setImageUrl("")}
+                          onClick={() => {
+                            setImageUrl("");
+                            setPendingImageBase64(null);
+                          }}
                           className="absolute top-1 right-1 p-1 bg-black/60 hover:bg-black/85 text-white rounded-full cursor-pointer"
                         >
                           <X className="w-3 h-3" />
@@ -626,10 +860,22 @@ export default function AdminPanel({
                     <button
                       id="form-save-btn"
                       type="submit"
-                      className="px-6 py-2.5 bg-brand-orange hover:bg-orange-600 text-white text-xs font-black rounded-xl cursor-pointer shadow-sm flex items-center gap-1.5"
+                      disabled={isUploadingToStorage || isCompressing}
+                      className="px-6 py-2.5 bg-brand-orange hover:bg-orange-600 disabled:bg-stone-400 text-white text-xs font-black rounded-xl cursor-pointer shadow-sm flex items-center gap-1.5"
                     >
-                      <Save className="w-4 h-4" />
-                      <span>{t.adminSave}</span>
+                      {isUploadingToStorage ? (
+                        <>
+                          <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>
+                            {currentLang === "ar" ? "جاري الحفظ والرفع..." : "Saving & Uploading..."}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4" />
+                          <span>{t.adminSave}</span>
+                        </>
+                      )}
                     </button>
                   </div>
 
