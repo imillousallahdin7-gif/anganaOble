@@ -27,7 +27,7 @@ import arganOilImg from "./assets/images/arganoble_argan_oil_1784433696744.jpg";
 import amlouImg from "./assets/images/arganoble_amlou_1784433710862.jpg";
 import citrusHoneyImg from "./assets/images/arganoble_citrus_honey_1784433727079.jpg";
 import thymeHoneyImg from "./assets/images/arganoble_thyme_honey_1784433742467.jpg";
-import heroBg from "./assets/images/argan_premium_bg_1784486050623.jpg";
+import heroBg from "./assets/images/arganoble_hero_bg_1784433679917.jpg";
 
 const SEED_PRODUCTS = [
   {
@@ -240,11 +240,11 @@ export default function App() {
         <img 
           src={heroBg} 
           alt="" 
-          className="w-full h-full object-cover opacity-35 filter scale-105 transition-all duration-1000"
+          className="w-full h-full object-cover opacity-70 filter scale-105 transition-all duration-1000"
           referrerPolicy="no-referrer"
         />
         {/* Elegant darkening gradient vignette overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#070605]/95 via-[#0c0a09]/85 to-[#070605]/95 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#070605]/80 via-[#0c0a09]/50 to-[#070605]/80 pointer-events-none" />
         
         {/* Ambient background glows */}
         <div className="absolute top-[10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-brand-orange/10 blur-[120px] pointer-events-none animate-pulse-slow" />
