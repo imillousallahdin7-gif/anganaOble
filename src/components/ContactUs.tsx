@@ -28,61 +28,61 @@ export default function ContactUs({ currentLang }: ContactUsProps) {
         </div>
 
         {/* Info Grid & Card */}
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch">
             
             {/* Coordinates Card */}
-            <div className={`bg-stone-900/30 backdrop-blur-md border border-stone-800/40 p-8 rounded-3xl flex flex-col justify-between ${isRtl ? "text-right" : "text-left"} shadow-lg`}>
-              <div className="space-y-6">
+            <div className={`premium-card p-8 md:p-10 rounded-[24px] flex flex-col justify-between ${isRtl ? "text-right" : "text-left"}`}>
+              <div className="space-y-8">
                 
                 {/* Location */}
-                <div className={`flex items-start gap-4 ${isRtl ? "flex-row-reverse" : ""}`}>
-                  <div className="p-3 bg-stone-950 border border-stone-800 rounded-xl text-brand-orange shrink-0 shadow-md">
+                <div className={`flex items-start gap-5 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <div className="p-4 bg-stone-950 border border-stone-800 rounded-2xl text-brand-orange shrink-0 shadow-lg">
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-extrabold text-white">{currentLang === "ar" ? "المقر" : currentLang === "fr" ? "Adresse" : "Headquarters"}</h4>
-                    <p className="text-xs font-bold text-stone-300 mt-1">{t.contactAddress}</p>
+                    <h4 className="text-sm md:text-base font-extrabold text-white">{currentLang === "ar" ? "المقر" : currentLang === "fr" ? "Adresse" : "Headquarters"}</h4>
+                    <p className="text-xs md:text-sm font-semibold text-stone-300 mt-1.5 leading-relaxed">{t.contactAddress}</p>
                   </div>
                 </div>
 
                 {/* Phone */}
-                <div className={`flex items-start gap-4 ${isRtl ? "flex-row-reverse" : ""}`}>
-                  <div className="p-3 bg-stone-950 border border-stone-800 rounded-xl text-emerald-400 shrink-0 shadow-md">
+                <div className={`flex items-start gap-5 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <div className="p-4 bg-stone-950 border border-stone-800 rounded-2xl text-emerald-400 shrink-0 shadow-lg">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-extrabold text-white">{currentLang === "ar" ? "الهاتف مباشر" : currentLang === "fr" ? "Téléphone" : "Direct Phone"}</h4>
-                    <a href="tel:+212641933598" className="text-xs font-black text-brand-orange hover:text-orange-400 hover:underline block mt-1">
+                    <h4 className="text-sm md:text-base font-extrabold text-white">{currentLang === "ar" ? "الهاتف مباشر" : currentLang === "fr" ? "Téléphone" : "Direct Phone"}</h4>
+                    <a href="tel:+212641933598" className="text-xs md:text-sm font-black text-brand-orange hover:text-orange-400 hover:underline block mt-1.5 transition-all">
                       0641933598 (212+)
                     </a>
                   </div>
                 </div>
 
                 {/* Email */}
-                <div className={`flex items-start gap-4 ${isRtl ? "flex-row-reverse" : ""}`}>
-                  <div className="p-3 bg-stone-950 border border-stone-800 rounded-xl text-blue-400 shrink-0 shadow-md">
+                <div className={`flex items-start gap-5 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <div className="p-4 bg-stone-950 border border-stone-800 rounded-2xl text-blue-400 shrink-0 shadow-lg">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-extrabold text-white">{currentLang === "ar" ? "البريد الإلكتروني" : currentLang === "fr" ? "E-mail" : "Email"}</h4>
-                    <a href="mailto:Ayoubkellal600@gmail.com" className="text-xs font-black text-brand-orange hover:text-orange-400 hover:underline block mt-1">
+                    <h4 className="text-sm md:text-base font-extrabold text-white">{currentLang === "ar" ? "البريد الإلكتروني" : currentLang === "fr" ? "E-mail" : "Email"}</h4>
+                    <a href="mailto:Ayoubkellal600@gmail.com" className="text-xs md:text-sm font-black text-brand-orange hover:text-orange-400 hover:underline block mt-1.5 transition-all">
                       Ayoubkellal600@gmail.com
                     </a>
                   </div>
                 </div>
 
                 {/* Work hours */}
-                <div className={`flex items-start gap-4 ${isRtl ? "flex-row-reverse" : ""}`}>
-                  <div className="p-3 bg-stone-950 border border-stone-800 rounded-xl text-sky-400 shrink-0 shadow-md">
+                <div className={`flex items-start gap-5 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <div className="p-4 bg-stone-950 border border-stone-800 rounded-2xl text-sky-400 shrink-0 shadow-lg">
                     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current" strokeWidth="2">
                       <circle cx="12" cy="12" r="10" />
                       <polyline points="12 6 12 12 16 14" />
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-sm font-extrabold text-white">{currentLang === "ar" ? "أوقات العمل" : currentLang === "fr" ? "Heures de travail" : "Working Hours"}</h4>
-                    <p className="text-xs font-bold text-stone-300 mt-1">
+                    <h4 className="text-sm md:text-base font-extrabold text-white">{currentLang === "ar" ? "أوقات العمل" : currentLang === "fr" ? "Heures de travail" : "Working Hours"}</h4>
+                    <p className="text-xs md:text-sm font-semibold text-stone-300 mt-1.5 leading-relaxed">
                       {currentLang === "ar" ? "طيلة أيام الأسبوع من الساعة 9:00 صباحاً حتى 9:00 مساءً" : currentLang === "fr" ? "7j/7 de 9h00 à 21h00" : "7 days/week from 9:00 AM to 9:00 PM"}
                     </p>
                   </div>
@@ -91,13 +91,13 @@ export default function ContactUs({ currentLang }: ContactUsProps) {
               </div>
 
               {/* Instant WhatsApp Action Link */}
-              <div className="mt-8 pt-6 border-t border-stone-800/80">
+              <div className="mt-10 pt-8 border-t border-stone-800/80">
                 <a
                   id="contact-whatsapp-btn"
                   href="https://wa.me/212641933598"
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white text-sm font-bold rounded-2xl shadow-md hover:shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-4.5 px-6 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 active:scale-[0.98] text-white text-sm font-black rounded-2xl shadow-xl hover:shadow-emerald-500/10 transition-all flex items-center justify-center gap-2.5 cursor-pointer"
                 >
                   <MessageCircle className="w-5 h-5 animate-pulse" />
                   <span>{t.contactWhatsapp}</span>
@@ -106,24 +106,24 @@ export default function ContactUs({ currentLang }: ContactUsProps) {
             </div>
 
             {/* Aesthetic Visual card displaying our brand dedication */}
-            <div className="bg-gradient-to-br from-amber-600 to-orange-700 rounded-3xl p-8 text-white flex flex-col justify-between relative overflow-hidden shadow-lg border border-orange-500/10">
+            <div className="bg-gradient-to-br from-amber-600 to-orange-800 rounded-[24px] p-8 md:p-10 text-white flex flex-col justify-between relative overflow-hidden shadow-2xl border border-orange-500/20">
               {/* Subtle background circles */}
-              <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none animate-pulse-slow" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/20 rounded-full blur-3xl pointer-events-none animate-pulse-slow" style={{ animationDelay: '3s' }} />
               
-              <div className="relative">
+              <div className="relative z-10">
                 {/* Simple ArganOble crown vector illustration */}
-                <span className="inline-block px-3 py-1 bg-white/15 backdrop-blur-xs rounded-full text-[10px] font-bold tracking-widest uppercase mb-4">
+                <span className="inline-block px-4 py-1.5 bg-white/15 backdrop-blur-md rounded-full text-[10px] md:text-xs font-black tracking-widest uppercase mb-6 border border-white/10">
                   ArganOble Co-op
                 </span>
-                <h3 className="text-2xl font-black title-serif mb-4 leading-snug">
+                <h3 className="text-2xl md:text-3xl font-black title-serif mb-6 leading-snug">
                   {currentLang === "ar" 
                     ? "نحن نضمن نقاوة العسل والزيت بنسبة 100%!" 
                     : currentLang === "fr" 
                       ? "Nous garantissons la pureté de nos produits à 100% !" 
                       : "We guarantee 100% purity of all our products!"}
                 </h3>
-                <p className="text-xs text-orange-50 font-medium leading-relaxed">
+                <p className="text-sm md:text-base text-orange-50 font-bold leading-relaxed opacity-95">
                   {currentLang === "ar"
                     ? "جميع طلبياتكم يتم تحضيرها بعناية فائقة وتغليفها بطريقة تضمن جودة وأمان المنتج أثناء الشحن لباب منزلكم في أي مدينة مغربية."
                     : currentLang === "fr"
@@ -133,9 +133,9 @@ export default function ContactUs({ currentLang }: ContactUsProps) {
               </div>
 
               {/* Souss agadir signature */}
-              <div className="mt-8 border-t border-white/20 pt-6 flex items-center justify-between text-xs font-bold text-orange-100">
+              <div className="mt-10 border-t border-white/20 pt-8 flex items-center justify-between text-xs md:text-sm font-black text-orange-100 relative z-10">
                 <span>{currentLang === "ar" ? "أكادير، جهة سوس ماسة" : "Agadir, Souss-Massa"}</span>
-                <span>🇲🇦</span>
+                <span className="text-lg">🇲🇦</span>
               </div>
             </div>
 

@@ -38,28 +38,28 @@ export default function Features({ currentLang }: FeaturesProps) {
   ];
 
   return (
-    <section id="features" className="py-12 bg-transparent border-y border-stone-800/50 relative z-10">
+    <section id="features" className="py-16 bg-transparent border-y border-stone-800/40 relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {features.map((feature) => (
             <div
               id={`feature-${feature.id}`}
               key={feature.id}
-              className={`flex items-start gap-4 p-6 bg-stone-900/30 backdrop-blur-md border border-stone-800/40 rounded-2xl shadow-lg hover:shadow-xl hover:border-brand-orange/30 hover:bg-stone-900/50 transition-all duration-300 ${
+              className={`premium-card p-8 rounded-2xl md:rounded-[24px] flex items-start gap-5 hover:border-brand-orange/30 transition-all duration-300 ${
                 isRtl ? "flex-row-reverse text-right" : "text-left"
               }`}
             >
               {/* Icon container */}
-              <div className={`p-3.5 rounded-xl ${feature.bg} border ${feature.border} shrink-0 shadow-md`}>
+              <div className={`p-4 rounded-xl ${feature.bg} border ${feature.border} shrink-0 shadow-lg`}>
                 {feature.icon}
               </div>
               
               {/* Content */}
               <div className="flex-1">
-                <h3 className="text-base font-extrabold text-white mb-1">
+                <h3 className="text-lg font-bold text-white mb-2 leading-tight">
                   {feature.title}
                 </h3>
-                <p className="text-xs text-stone-300 font-bold leading-relaxed">
+                <p className="text-xs text-stone-300/90 font-medium leading-relaxed">
                   {feature.desc}
                 </p>
               </div>

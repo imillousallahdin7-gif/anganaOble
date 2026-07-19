@@ -233,18 +233,22 @@ export default function App() {
   const isRtl = lang === "ar";
 
   return (
-    <div id="arganoble-app-root" className="min-h-screen flex flex-col bg-stone-950 relative overflow-x-hidden" dir={isRtl ? "rtl" : "ltr"}>
+    <div id="arganoble-app-root" className="min-h-screen flex flex-col bg-[#070605] relative overflow-x-hidden text-stone-100" dir={isRtl ? "rtl" : "ltr"}>
       
       {/* Unified Luxury Moroccan Souss Heritage Background */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <img 
           src={heroBg} 
           alt="" 
-          className="w-full h-full object-cover opacity-100"
+          className="w-full h-full object-cover opacity-35 filter scale-105 transition-all duration-1000"
           referrerPolicy="no-referrer"
         />
-        {/* Soft elegant darkening vignette overlay to keep text elements highly readable without washing out the photo details */}
-        <div className="absolute inset-0 bg-stone-950/25 pointer-events-none" />
+        {/* Elegant darkening gradient vignette overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#070605]/95 via-[#0c0a09]/85 to-[#070605]/95 pointer-events-none" />
+        
+        {/* Ambient background glows */}
+        <div className="absolute top-[10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-brand-orange/10 blur-[120px] pointer-events-none animate-pulse-slow" />
+        <div className="absolute bottom-[20%] right-[-15%] w-[60vw] h-[60vw] rounded-full bg-amber-500/8 blur-[150px] pointer-events-none animate-pulse-slow" style={{ animationDelay: '2s' }} />
       </div>
 
       {/* 1. Header Navigation Bar */}

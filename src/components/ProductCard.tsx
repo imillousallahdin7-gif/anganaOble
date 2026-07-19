@@ -47,27 +47,28 @@ export default function ProductCard({
   return (
     <div 
       id={`product-card-${product.id}`}
-      className="bg-stone-900/30 backdrop-blur-md rounded-2xl border border-stone-800/40 overflow-hidden shadow-xl hover:shadow-2xl hover:border-brand-orange/40 hover:bg-stone-900/50 transition-all duration-300 flex flex-col group"
+      className="premium-card rounded-2xl md:rounded-[24px] overflow-hidden flex flex-col group"
     >
       {/* Image Container with Actions overlay on hover */}
-      <div className="relative aspect-square w-full bg-stone-950/40 overflow-hidden shrink-0">
+      <div className="relative aspect-square w-full bg-stone-950/60 overflow-hidden shrink-0">
         <ProductImage
           imageUrl={product.imageUrl}
           category={product.category}
           alt={title}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         
         {/* Category Badge overlay */}
-        <span className={`absolute top-3 ${isRtl ? "right-3" : "left-3"} bg-stone-950/90 backdrop-blur-xs text-brand-orange text-xs font-black px-2.5 py-1 rounded-lg shadow-md z-10 border border-stone-800`}>
+        <span className={`absolute top-4.5 ${isRtl ? "right-4.5" : "left-4.5"} bg-stone-950/90 backdrop-blur-md text-amber-400 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl shadow-md z-10 border border-stone-800/80`}>
           {getCategoryLabel(product.category)}
         </span>
 
         {/* Quick View Overlay on Desktop */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-10">
+        <div className="absolute inset-0 bg-stone-950/30 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2 z-10">
           <button
             id={`quick-view-btn-${product.id}`}
             onClick={() => onViewDetails(product)}
-            className="p-3 bg-stone-950 hover:bg-brand-orange text-stone-200 hover:text-white rounded-full shadow-lg transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 cursor-pointer border border-stone-800"
+            className="p-3.5 bg-stone-900 hover:bg-brand-orange text-stone-100 hover:text-white rounded-full shadow-2xl transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 cursor-pointer border border-stone-700/50 hover:border-brand-orange/40"
             title={t.viewDetails}
           >
             <Eye className="w-5 h-5" />
@@ -76,12 +77,12 @@ export default function ProductCard({
       </div>
 
       {/* Product Information Body */}
-      <div className={`p-5 flex-1 flex flex-col ${isRtl ? "text-right" : "text-left"}`}>
+      <div className={`p-6 flex-1 flex flex-col ${isRtl ? "text-right" : "text-left"}`}>
         {/* Title */}
         <h3 
           id={`product-title-${product.id}`}
           onClick={() => onViewDetails(product)}
-          className="text-lg font-bold text-white mb-2 title-serif hover:text-brand-orange cursor-pointer line-clamp-1 transition-colors"
+          className="text-lg md:text-xl font-bold text-white mb-2.5 title-serif hover:text-brand-orange cursor-pointer line-clamp-1 transition-colors leading-tight"
         >
           {title}
         </h3>
@@ -92,19 +93,19 @@ export default function ProductCard({
         </p>
 
         {/* Divider */}
-        <div className="border-t border-stone-800/70 my-3" />
+        <div className="border-t border-stone-800/60 my-3.5" />
 
         {/* Price & Shipping Metadata */}
-        <div className={`flex items-baseline justify-between mb-4 ${isRtl ? "flex-row-reverse" : "flex-row"}`}>
+        <div className={`flex items-baseline justify-between mb-4.5 ${isRtl ? "flex-row-reverse" : "flex-row"}`}>
           <div>
-            <span className="text-xs text-stone-400 font-bold uppercase block">{t.price}</span>
-            <span id={`product-price-${product.id}`} className="text-xl font-black text-brand-orange">
+            <span className="text-[10px] text-stone-450 font-black uppercase tracking-wider block mb-1">{t.price}</span>
+            <span id={`product-price-${product.id}`} className="text-xl md:text-2xl font-black text-amber-500 tracking-tight">
               {product.price} <span className="text-sm font-bold">{t.mad}</span>
             </span>
           </div>
           <div className={`${isRtl ? "text-left" : "text-right"}`}>
-            <span className="text-xs text-stone-400 font-bold block">{t.shipping}</span>
-            <span className="text-xs font-bold text-stone-200">
+            <span className="text-[10px] text-stone-450 font-black uppercase tracking-wider block mb-1">{t.shipping}</span>
+            <span className="text-xs font-black text-emerald-400">
               {product.shippingCost === 0 ? t.free : `${product.shippingCost} ${t.mad}`}
             </span>
           </div>
@@ -116,9 +117,9 @@ export default function ProductCard({
           <button
             id={`product-order-btn-${product.id}`}
             onClick={() => onOrderNow(product)}
-            className="w-full py-3 glow-button-orange text-white text-xs font-black rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full py-3.5 glow-button-orange text-white text-xs font-black rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
           >
-            <PhoneCall className="w-4 h-4" />
+            <PhoneCall className="w-4 h-4 animate-pulse" />
             <span>{t.orderNow}</span>
           </button>
 
@@ -126,7 +127,7 @@ export default function ProductCard({
           <button
             id={`product-add-cart-btn-${product.id}`}
             onClick={() => onAddToCart(product)}
-            className="w-full py-2.5 bg-stone-900 hover:bg-stone-800 hover:text-brand-orange text-stone-200 text-xs font-black border border-stone-800/80 hover:border-brand-orange/40 rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.15)] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full py-3 bg-stone-900/65 hover:bg-stone-850 hover:text-brand-orange text-stone-200 text-xs font-black border border-stone-800 hover:border-brand-orange/30 rounded-xl hover:shadow-[0_0_15px_rgba(249,115,22,0.1)] transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
           >
             <ShoppingCart className="w-4 h-4" />
             <span>{t.addToCart}</span>
