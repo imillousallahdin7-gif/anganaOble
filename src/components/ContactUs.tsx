@@ -1,4 +1,4 @@
-import { Phone, MapPin, MessageCircle, Instagram } from "lucide-react";
+import { Phone, MapPin, MessageCircle, Instagram, Mail } from "lucide-react";
 import { Language } from "../types";
 import { translations } from "../translations";
 
@@ -55,6 +55,19 @@ export default function ContactUs({ currentLang }: ContactUsProps) {
                     <h4 className="text-sm font-extrabold text-white">{currentLang === "ar" ? "الهاتف مباشر" : currentLang === "fr" ? "Téléphone" : "Direct Phone"}</h4>
                     <a href="tel:+212641933598" className="text-xs font-black text-brand-orange hover:text-orange-400 hover:underline block mt-1">
                       0641933598 (212+)
+                    </a>
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className={`flex items-start gap-4 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <div className="p-3 bg-stone-950 border border-stone-800 rounded-xl text-blue-400 shrink-0 shadow-md">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-extrabold text-white">{currentLang === "ar" ? "البريد الإلكتروني" : currentLang === "fr" ? "E-mail" : "Email"}</h4>
+                    <a href="mailto:Ayoubkellal600@gmail.com" className="text-xs font-black text-brand-orange hover:text-orange-400 hover:underline block mt-1">
+                      Ayoubkellal600@gmail.com
                     </a>
                   </div>
                 </div>

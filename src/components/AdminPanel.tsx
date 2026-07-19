@@ -317,7 +317,7 @@ export default function AdminPanel({
             </h2>
             <p className="text-xs font-semibold text-gray-400 mb-8 leading-relaxed">
               {currentLang === "ar" 
-                ? "هذه المنطقة محمية برمز PIN مخصص للمشرف هشام لإدارة محتوى المتجر."
+                ? "هذه المنطقة محمية برمز PIN مخصص للمشرف أيوب كلال لإدارة محتوى المتجر."
                 : "This area is restricted. Authenticate using your 7-digit security PIN."}
             </p>
 
@@ -372,7 +372,7 @@ export default function AdminPanel({
                   {t.adminTitle}
                 </h2>
                 <p className={`text-xs text-gray-400 font-semibold mt-1 ${isRtl ? "text-right" : "text-left"}`}>
-                  {currentLang === "ar" ? "أهلاً بك يا هشام! أضف وعدل منتجات العسل الحر والأركان والأملو." : "Welcome Hicham! Manage your organic products list in real-time."}
+                  {currentLang === "ar" ? "أهلاً بك يا أيوب كلال! أضف وعدل منتجات العسل الحر والأركان والأملو." : "Welcome Ayoub kellal! Manage your organic products list in real-time."}
                 </p>
               </div>
               <button
