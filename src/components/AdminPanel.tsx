@@ -255,12 +255,21 @@ export default function AdminPanel({
       }
     } catch (err: any) {
       console.error("Google Sign-In Error:", err);
-      showStatus(
-        currentLang === "ar"
+      let friendlyMessage = "";
+      if (err.code === "auth/popup-closed-by-user" || err.message?.includes("popup-closed-by-user")) {
+        friendlyMessage = currentLang === "ar"
+          ? "تم إغلاق نافذة تسجيل الدخول (أو حظرها من المتصفح بسبب تشغيل التطبيق في iframe). يرجى فتح التطبيق في نافذة/علامة تبويب جديدة لتسجيل الدخول بجوجل، أو تسجيل الدخول برمز PIN مباشرة."
+          : "The sign-in popup was closed (or blocked by the browser due to the iframe context). Please open the app in a new tab to use Google Sign-In, or use the PIN code directly.";
+      } else if (err.code === "auth/popup-blocked" || err.message?.includes("popup-blocked")) {
+        friendlyMessage = currentLang === "ar"
+          ? "تم حظر نافذة تسجيل الدخول المنبثقة من قبل متصفحك. يرجى تفعيل النوافذ المنبثقة أو استخدام رمز الـ PIN."
+          : "The sign-in popup was blocked by your browser. Please allow popups or use the PIN code.";
+      } else {
+        friendlyMessage = currentLang === "ar"
           ? "فشل تسجيل الدخول بجوجل: " + err.message
-          : "Google Sign-In failed: " + err.message,
-        "error"
-      );
+          : "Google Sign-In failed: " + err.message;
+      }
+      showStatus(friendlyMessage, "error");
     } finally {
       setIsLoggingIn(false);
     }
