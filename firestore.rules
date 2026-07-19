@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper to validate IDs
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Helper to validate product fields
+    function isValidProduct(data) {
+      return data.keys().hasAll([
+        'titleAr', 'titleEn', 'titleFr',
+        'descriptionAr', 'descriptionEn', 'descriptionFr',
+        'category', 'price', 'shippingCost', 'imageUrl', 'createdAt'
+      ]) &&
+      data.keys().size() == 11 &&
+      data.titleAr is string && data.titleAr.size() > 0 && data.titleAr.size() <= 200 &&
+      data.titleEn is string && data.titleEn.size() > 0 && data.titleEn.size() <= 200 &&
+      data.titleFr is string && data.titleFr.size() > 0 && data.titleFr.size() <= 200 &&
+      data.descriptionAr is string && data.descriptionAr.size() <= 5000 &&
+      data.descriptionEn is string && data.descriptionEn.size() <= 5000 &&
+      data.descriptionFr is string && data.descriptionFr.size() <= 5000 &&
+      data.category in ['honey', 'amlou', 'argan'] &&
+      data.price is number && data.price >= 0 &&
+      data.shippingCost is number && data.shippingCost >= 0 &&
+      data.imageUrl is string && data.imageUrl.size() <= 2000000 &&
+      data.createdAt is number;
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update: if isValidId(productId) && isValidProduct(request.resource.data);
+      allow delete: if true;
+    }
+  }
+}

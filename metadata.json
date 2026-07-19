@@ -1,0 +1,6 @@
+{
+  "name": "ArganOble",
+  "description": "متجر أركان وبل لبيع العسل الحر، الأملو الأمازيغي، وزيت الأركان المغربي الطبيعي",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
