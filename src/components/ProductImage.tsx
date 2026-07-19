@@ -138,6 +138,8 @@ export default function ProductImage({ imageUrl, category, alt, className = "" }
           src={imageUrl}
           alt={alt}
           referrerPolicy="no-referrer"
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover select-none transition-transform duration-500 hover:scale-105"
           onError={(e) => {
             // Hide the image

@@ -258,6 +258,7 @@ export default function App() {
         <img 
           src={heroBg} 
           alt="" 
+          loading="eager"
           className="w-full h-full object-cover opacity-70 filter scale-105 transition-all duration-1000"
           referrerPolicy="no-referrer"
         />
