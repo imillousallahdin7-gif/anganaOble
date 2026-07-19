@@ -2,6 +2,7 @@ import { ShoppingCart, Lock, Globe, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Language } from "../types";
 import { translations } from "../translations";
+import logoImg from "../assets/images/arganoble_logo_1784487265709.jpg";
 
 interface NavbarProps {
   currentLang: Language;
@@ -92,36 +93,16 @@ export default function Navbar({
             onClick={() => scrollToSection("home")} 
             className={`flex items-center gap-3 cursor-pointer group ${isRtl ? "flex-row-reverse" : "flex-row"}`}
           >
-            {/* Custom vector Bee logo */}
-            <div className={`w-11 h-11 rounded-full shadow-md flex items-center justify-center p-1.5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 ${
-              scrolled ? "bg-amber-500/10 border border-amber-500/20" : "bg-white/95 border border-white"
+            {/* Real Brand Logo Image */}
+            <div className={`w-14 h-14 rounded-full overflow-hidden shadow-lg border transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 bg-white flex items-center justify-center ${
+              scrolled ? "border-amber-500/30" : "border-white/40"
             }`}>
-              <svg viewBox="0 0 100 100" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                {/* Antennae */}
-                <path d="M42 22 C38 15 30 20 32 26" stroke="#1F2937" strokeWidth="4" strokeLinecap="round" fill="none" />
-                <path d="M58 22 C62 15 70 20 68 26" stroke="#1F2937" strokeWidth="4" strokeLinecap="round" fill="none" />
-                {/* Wings */}
-                <ellipse cx="30" cy="38" rx="16" ry="10" transform="rotate(-30 30 38)" fill="#BAE6FD" opacity="0.8" stroke="#38BDF8" strokeWidth="1" />
-                <ellipse cx="70" cy="38" rx="16" ry="10" transform="rotate(30 70 38)" fill="#BAE6FD" opacity="0.8" stroke="#38BDF8" strokeWidth="1" />
-                <ellipse cx="34" cy="46" rx="12" ry="8" transform="rotate(-15 34 46)" fill="#E0F2FE" opacity="0.7" stroke="#38BDF8" strokeWidth="0.5" />
-                <ellipse cx="66" cy="46" rx="12" ry="8" transform="rotate(15 66 46)" fill="#E0F2FE" opacity="0.7" stroke="#38BDF8" strokeWidth="0.5" />
-                {/* Body */}
-                <ellipse cx="50" cy="54" rx="20" ry="24" fill="#F97316" />
-                {/* Stripes */}
-                <path d="M32 44 Q50 48 68 44" stroke="#1F2937" strokeWidth="7" fill="none" />
-                <path d="M30 54 Q50 58 70 54" stroke="#1F2937" strokeWidth="7" fill="none" />
-                <path d="M32 64 Q50 68 68 64" stroke="#1F2937" strokeWidth="7" fill="none" />
-                {/* Stinger */}
-                <path d="M50 78 L50 86 L47 78 Z" fill="#1F2937" />
-                {/* Eyes */}
-                <circle cx="43" cy="34" r="3.5" fill="#1F2937" />
-                <circle cx="57" cy="34" r="3.5" fill="#1F2937" />
-                <circle cx="44" cy="33" r="1" fill="#FFF" />
-                <circle cx="58" cy="33" r="1" fill="#FFF" />
-                {/* Rosy Cheeks */}
-                <circle cx="38" cy="38" r="2.5" fill="#F87171" opacity="0.6" />
-                <circle cx="62" cy="38" r="2.5" fill="#F87171" opacity="0.6" />
-              </svg>
+              <img 
+                src={logoImg} 
+                alt="ArganOble Logo" 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             </div>
             <div className="flex flex-col text-start">
               <span className={`text-xl font-bold tracking-wider title-serif transition-colors duration-300 ${logoTextClass}`}>
