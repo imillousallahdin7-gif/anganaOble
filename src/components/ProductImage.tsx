@@ -10,31 +10,13 @@ interface ProductImageProps {
 export default function ProductImage({ imageUrl, category, alt, className = "" }: ProductImageProps) {
   const hasImage = !!imageUrl;
 
-  if (hasImage) {
-    return (
-      <img
-        id={`img-${alt.replace(/\s+/g, '-').toLowerCase()}`}
-        src={imageUrl}
-        alt={alt}
-        referrerPolicy="no-referrer"
-        className={`w-full h-full object-cover select-none transition-transform duration-500 hover:scale-105 ${className}`}
-        onError={(e) => {
-          // If loading fails, fallback to SVG placeholder by removing the src
-          (e.target as HTMLImageElement).style.display = "none";
-          const sibling = (e.target as HTMLImageElement).nextElementSibling;
-          if (sibling) {
-            (sibling as HTMLElement).style.display = "flex";
-          }
-        }}
-      />
-    );
-  }
-
-  // Beautiful SVG illustrations based on category
-  return (
-    <div className={`w-full h-full flex items-center justify-center bg-gray-50 relative overflow-hidden group ${className}`}>
+  const fallbackContent = (style?: React.CSSProperties) => (
+    <div 
+      className={`w-full h-full flex items-center justify-center bg-stone-900/45 relative overflow-hidden group ${className}`}
+      style={style}
+    >
       {/* Background soft glow */}
-      <div className="absolute inset-0 bg-radial from-amber-50 to-transparent opacity-60" />
+      <div className="absolute inset-0 bg-radial from-amber-500/5 to-transparent opacity-40" />
       
       {category === "honey" && (
         <svg className="w-24 h-24 text-amber-500 drop-shadow-md transition-transform duration-300 group-hover:scale-110" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -141,9 +123,35 @@ export default function ProductImage({ imageUrl, category, alt, className = "" }
       )}
 
       {/* Product label bottom */}
-      <span className="absolute bottom-2 text-[10px] font-mono tracking-widest text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full uppercase opacity-70">
+      <span className="absolute bottom-2 text-[10px] font-mono tracking-widest text-amber-500/80 bg-stone-950/85 px-2.5 py-1 rounded-full uppercase opacity-90 border border-stone-800/40">
         {category}
       </span>
     </div>
   );
+
+  if (hasImage) {
+    return (
+      <div className={`relative w-full h-full overflow-hidden ${className}`}>
+        <img
+          id={`img-${alt.replace(/\s+/g, '-').toLowerCase()}`}
+          src={imageUrl}
+          alt={alt}
+          referrerPolicy="no-referrer"
+          className="w-full h-full object-cover select-none transition-transform duration-500 hover:scale-105"
+          onError={(e) => {
+            // Hide the image
+            (e.target as HTMLImageElement).style.display = "none";
+            // Show the fallback sibling
+            const sibling = (e.target as HTMLImageElement).nextElementSibling;
+            if (sibling) {
+              (sibling as HTMLElement).style.display = "flex";
+            }
+          }}
+        />
+        {fallbackContent({ display: "none" })}
+      </div>
+    );
+  }
+
+  return fallbackContent();
 }

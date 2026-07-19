@@ -106,10 +106,28 @@ export default function App() {
   // 1. Listen to Products Collection on Snapshot
   useEffect(() => {
     const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+    let isSeeding = false;
     
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
       if (snapshot.empty) {
         setProducts([]);
+        if (!isSeeding) {
+          isSeeding = true;
+          try {
+            console.log("Firestore products collection is empty. Seeding default products...");
+            const productsCol = collection(db, "products");
+            for (const prod of SEED_PRODUCTS) {
+              await addDoc(productsCol, {
+                ...prod,
+                createdAt: Date.now()
+              });
+            }
+          } catch (e) {
+            console.error("Error seeding default products to Firestore:", e);
+          } finally {
+            isSeeding = false;
+          }
+        }
       } else {
         const prodList: Product[] = [];
         snapshot.forEach((doc) => {
