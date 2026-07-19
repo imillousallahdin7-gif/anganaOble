@@ -27,7 +27,7 @@ import arganOilImg from "./assets/images/arganoble_argan_oil_1784433696744.jpg";
 import amlouImg from "./assets/images/arganoble_amlou_1784433710862.jpg";
 import citrusHoneyImg from "./assets/images/arganoble_citrus_honey_1784433727079.jpg";
 import thymeHoneyImg from "./assets/images/arganoble_thyme_honey_1784433742467.jpg";
-import heroBg from "./assets/images/arganoble_hero_bg_1784433679917.jpg";
+import heroBg from "./assets/images/argan_premium_bg_1784486050623.jpg";
 
 const SEED_PRODUCTS = [
   {
