@@ -103,17 +103,13 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // 1. Listen to Products Collection on Snapshot & Seed if empty
+  // 1. Listen to Products Collection on Snapshot
   useEffect(() => {
     const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
       if (snapshot.empty) {
-        console.log("No products found, seeding default ArganOble items...");
-        // Seed database asynchronously
-        SEED_PRODUCTS.forEach(async (prod) => {
-          await addDoc(collection(db, "products"), prod);
-        });
+        setProducts([]);
       } else {
         const prodList: Product[] = [];
         snapshot.forEach((doc) => {
