@@ -23,66 +23,7 @@ import CartModal from "./components/CartModal";
 import AdminPanel from "./components/AdminPanel";
 import { translations } from "./translations";
 
-import arganOilImg from "./assets/images/arganoble_argan_oil_1784433696744.jpg";
-import amlouImg from "./assets/images/arganoble_amlou_1784433710862.jpg";
-import citrusHoneyImg from "./assets/images/arganoble_citrus_honey_1784433727079.jpg";
-import thymeHoneyImg from "./assets/images/arganoble_thyme_honey_1784433742467.jpg";
 import heroBg from "./assets/images/arganoble_hero_bg_1784433679917.jpg";
-
-const SEED_PRODUCTS = [
-  {
-    titleAr: "زيت أركان التجميل النقي 100%",
-    titleEn: "100% Pure Cosmetic Argan Oil",
-    titleFr: "Huile d'Argan Cosmétique 100% Pure",
-    descriptionAr: "زيت أركان نقي وعضوي 100% معصور على البارد من ثمار شجرة الأركان بمنطقة سوس. غني بفيتامين E ومضادات الأكسدة لتغذية البشرة والشعر وترطيبهما بعمق.",
-    descriptionEn: "100% pure and organic cold-pressed Argan oil from the Souss region. Rich in vitamin E and antioxidants, it deeply nourishes and hydrates skin and hair.",
-    descriptionFr: "Huile d'argan 100% pure et biologique pressée à froid de la région de Souss. Riche en vitamine E et en antioxydants, elle nourrit et hydrate en profondeur la peau et les cheveux.",
-    category: "argan" as Category,
-    price: 120,
-    shippingCost: 20,
-    imageUrl: arganOilImg,
-    createdAt: Date.now() - 4000
-  },
-  {
-    titleAr: "أملو أمازيغي باللوز البلدي وزيت الأركان",
-    titleEn: "Premium Amazigh Amlou with Almonds & Argan",
-    titleFr: "Amlou Amazigh Premium aux Amandes et Argan",
-    descriptionAr: "أملو تقليدي فاخر مصنوع من اللوز البلدي المحمص، زيت الأركان البكر النقي، وعسل السدر الطبيعي. طاقة نشاط وصحة مذهلة لوجبة فطورك وعائلتك.",
-    descriptionEn: "Premium traditional Amlou made of roasted Moroccan almonds, pure virgin Argan oil, and natural Sidr honey. A boost of energy and health for your breakfast.",
-    descriptionFr: "Amlou traditionnel de qualité supérieure composé d'amandes marocaines grillées, d'huile d'Argan vierge pure et de miel de Sidr naturel. Un regain d'énergie et de santé pour votre petit-déjeuner.",
-    category: "amlou" as Category,
-    price: 150,
-    shippingCost: 20,
-    imageUrl: amlouImg,
-    createdAt: Date.now() - 3000
-  },
-  {
-    titleAr: "عسل ليمون حر طبيعي 100%",
-    titleEn: "100% Natural Pure Citrus Honey",
-    titleFr: "Miel d'Oranger 100% Pur et Naturel",
-    descriptionAr: "عسل ليمون طبيعي ممتاز مقطوف من مزارع جهة سوس ماسة. يتميز برائحته الزكية ومذاقه الخفيف واللطيف، ومفيد لتهدئة الأعصاب وتحسين الهضم.",
-    descriptionEn: "Premium natural orange blossom honey harvested from Souss-Massa groves. Known for its aromatic scent, light sweet taste, and soothing properties.",
-    descriptionFr: "Miel d'oranger naturel de qualité supérieure récolté dans les vergers de Souss-Massa. Connu pour son parfum aromatique, son goût doux et ses propriétés apaisantes.",
-    category: "honey" as Category,
-    price: 180,
-    shippingCost: 20,
-    imageUrl: citrusHoneyImg,
-    createdAt: Date.now() - 2000
-  },
-  {
-    titleAr: "عسل الزعتر الحر الأصيل",
-    titleEn: "Authentic Pure Thyme Honey",
-    titleFr: "Miel de Thym Pur et Authentique",
-    descriptionAr: "عسل الزعتر الحر النادر من جبال الأطلس الكبير. ذو نكهة قوية وقيمة علاجية عالية جداً، فعال في تقوية المناعة وعلاج التهابات الجهاز التنفسي والبرد.",
-    descriptionEn: "Rare pure thyme honey from the High Atlas mountains. Strong flavor with exceptional therapeutic benefits, ideal for boosting immunity and treating colds.",
-    descriptionFr: "Miel de thym pur et rare des montagnes du Haut Atlas. Saveur prononcée aux vertus thérapeutiques exceptionnelles, idéal pour renforcer l'immunité.",
-    category: "honey" as Category,
-    price: 250,
-    shippingCost: 20,
-    imageUrl: thymeHoneyImg,
-    createdAt: Date.now() - 1000
-  }
-];
 
 export default function App() {
   // Locale State
@@ -106,49 +47,15 @@ export default function App() {
   // 1. Listen to Products Collection on Snapshot
   useEffect(() => {
     const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-    let isSeeding = false;
     
-    const unsubscribe = onSnapshot(q, async (snapshot) => {
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       if (snapshot.empty) {
         setProducts([]);
-        if (!isSeeding) {
-          isSeeding = true;
-          try {
-            console.log("Firestore products collection is empty. Seeding default products...");
-            const productsCol = collection(db, "products");
-            for (const prod of SEED_PRODUCTS) {
-              await addDoc(productsCol, {
-                ...prod,
-                createdAt: Date.now()
-              });
-            }
-          } catch (e) {
-            console.error("Error seeding default products to Firestore:", e);
-          } finally {
-            isSeeding = false;
-          }
-        }
       } else {
         const prodList: Product[] = [];
         snapshot.forEach((doc) => {
           const data = doc.data();
-          let imageUrl = data.imageUrl || "";
-          
-          // Fallback to high-quality generated images if imageUrl is empty
-          if (!imageUrl) {
-            const titleEn = data.titleEn || "";
-            if (titleEn.includes("Argan")) {
-              imageUrl = arganOilImg;
-            } else if (titleEn.includes("Amlou")) {
-              imageUrl = amlouImg;
-            } else if (titleEn.includes("Citrus") || titleEn.includes("Orange")) {
-              imageUrl = citrusHoneyImg;
-            } else if (titleEn.includes("Thyme")) {
-              imageUrl = thymeHoneyImg;
-            }
-          }
-          
-          prodList.push({ id: doc.id, ...data, imageUrl } as Product);
+          prodList.push({ id: doc.id, ...data } as Product);
         });
         setProducts(prodList);
       }

@@ -114,7 +114,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
 const uploadToStorageWithTimeout = async (
   storageReference: any,
   base64DataUrl: string,
-  timeoutMs = 15000
+  timeoutMs = 5000
 ): Promise<string> => {
   console.log("Preparing to upload image to Firebase Storage path:", storageReference.fullPath);
 
@@ -457,39 +457,11 @@ export default function AdminPanel({
     const finalDescFr = dFr || dAr || dEn || "";
 
     setIsUploadingToStorage(true);
-    let finalImageUrl = imageUrl.trim();
+    let finalImageUrl = (pendingImageBase64 && pendingImageBase64.startsWith("data:")) 
+      ? pendingImageBase64 
+      : imageUrl.trim();
 
     try {
-      // Secure Image Storage Integration with timeout, detailed logging, and fallback
-      if (pendingImageBase64 && pendingImageBase64.startsWith("data:")) {
-        console.log("Starting image upload to Firebase Storage...");
-        const fileName = `products/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.jpg`;
-        const storageReference = storageRef(storage, fileName);
-
-        try {
-          finalImageUrl = await uploadToStorageWithTimeout(storageReference, pendingImageBase64, 15000);
-          console.log("Firebase Storage Upload Succeeded! Download URL:", finalImageUrl);
-        } catch (storageErr: any) {
-          console.error("Firebase Storage Upload Error / Timeout:", storageErr);
-          console.log("Error details:", { 
-            message: storageErr?.message, 
-            code: storageErr?.code, 
-            stack: storageErr?.stack 
-          });
-
-          // Fall back to client-side compressed base64 data URL if storage upload fails or times out
-          finalImageUrl = pendingImageBase64;
-          const detail = storageErr?.message || String(storageErr);
-
-          showStatus(
-            currentLang === "ar"
-              ? `تنبيه: تعذر رفع الصورة للخادم السحابي (${detail}). تم حفظ الصورة المرفقة بالمنتج مباشرة!`
-              : `Notice: Cloud storage upload skipped (${detail}). Saved product with embedded image.`,
-            "error"
-          );
-        }
-      }
-
       const productPayload = {
         titleAr: finalTitleAr,
         titleEn: finalTitleEn,
@@ -504,6 +476,8 @@ export default function AdminPanel({
         createdAt: isEditing ? (products.find(p => p.id === editProductId)?.createdAt || Date.now()) : Date.now(),
       };
 
+      let savedDocId = editProductId;
+
       if (isEditing && editProductId) {
         const productRef = doc(db, "products", editProductId);
         try {
@@ -515,11 +489,32 @@ export default function AdminPanel({
       } else {
         const productsCol = collection(db, "products");
         try {
-          await addDoc(productsCol, productPayload);
+          const newDoc = await addDoc(productsCol, productPayload);
+          savedDocId = newDoc.id;
         } catch (error) {
           handleFirestoreError(error, OperationType.CREATE, "products");
         }
         showStatus(t.adminAddSuccess, "success");
+      }
+
+      // Non-blocking background upload to Firebase Storage if pending image exists
+      if (pendingImageBase64 && pendingImageBase64.startsWith("data:") && savedDocId) {
+        const base64ToUpload = pendingImageBase64;
+        const targetDocId = savedDocId;
+        (async () => {
+          try {
+            console.log("Background: Uploading image to Firebase Storage for product:", targetDocId);
+            const fileName = `products/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.jpg`;
+            const storageReference = storageRef(storage, fileName);
+            const cloudUrl = await uploadToStorageWithTimeout(storageReference, base64ToUpload, 3000);
+            if (cloudUrl) {
+              await updateDoc(doc(db, "products", targetDocId), { imageUrl: cloudUrl });
+              console.log("Background Storage upload succeeded, updated document imageUrl:", cloudUrl);
+            }
+          } catch (bgErr) {
+            console.log("Background Storage upload skipped (using embedded compressed image):", bgErr);
+          }
+        })();
       }
 
       resetForm();
