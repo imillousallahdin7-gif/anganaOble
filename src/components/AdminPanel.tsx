@@ -218,8 +218,8 @@ export default function AdminPanel({
   const [descFr, setDescFr] = useState("");
 
   const [category, setCategory] = useState<Category>("honey");
-  const [price, setPrice] = useState<number>(0);
-  const [shippingCost, setShippingCost] = useState<number>(20);
+  const [price, setPrice] = useState<string>("");
+  const [shippingCost, setShippingCost] = useState<string>("");
   const [imageUrl, setImageUrl] = useState("");
   const [imageFileError, setImageFileError] = useState("");
   const [isCompressing, setIsCompressing] = useState(false);
@@ -416,8 +416,8 @@ export default function AdminPanel({
     setDescEn("");
     setDescFr("");
     setCategory("honey");
-    setPrice(0);
-    setShippingCost(20);
+    setPrice("");
+    setShippingCost("");
     setImageUrl("");
     setImageFileError("");
     setPendingImageBase64(null);
@@ -470,8 +470,8 @@ export default function AdminPanel({
         descriptionEn: finalDescEn,
         descriptionFr: finalDescFr,
         category,
-        price: Number(price),
-        shippingCost: Number(shippingCost),
+        price: price.trim() === "" ? 0 : Math.max(0, parseFloat(price) || 0),
+        shippingCost: shippingCost.trim() === "" ? 0 : Math.max(0, parseFloat(shippingCost) || 0),
         imageUrl: finalImageUrl,
         createdAt: isEditing ? (products.find(p => p.id === editProductId)?.createdAt || Date.now()) : Date.now(),
       };
@@ -564,8 +564,8 @@ export default function AdminPanel({
     setDescEn(prod.descriptionEn);
     setDescFr(prod.descriptionFr);
     setCategory(prod.category);
-    setPrice(prod.price);
-    setShippingCost(prod.shippingCost);
+    setPrice(prod.price !== undefined && prod.price !== null ? String(prod.price) : "");
+    setShippingCost(prod.shippingCost !== undefined && prod.shippingCost !== null ? String(prod.shippingCost) : "");
     setImageUrl(prod.imageUrl);
     setPendingImageBase64(null);
     setImageFileError("");
@@ -834,9 +834,10 @@ export default function AdminPanel({
                         id="form-price"
                         type="number"
                         min={0}
-                        required
+                        step="any"
+                        placeholder="0"
                         value={price}
-                        onChange={(e) => setPrice(Number(e.target.value))}
+                        onChange={(e) => setPrice(e.target.value)}
                         className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 outline-none focus:border-brand-orange"
                       />
                     </div>
@@ -847,9 +848,10 @@ export default function AdminPanel({
                         id="form-shipping"
                         type="number"
                         min={0}
-                        required
+                        step="any"
+                        placeholder="0"
                         value={shippingCost}
-                        onChange={(e) => setShippingCost(Number(e.target.value))}
+                        onChange={(e) => setShippingCost(e.target.value)}
                         className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 outline-none focus:border-brand-orange"
                       />
                     </div>
