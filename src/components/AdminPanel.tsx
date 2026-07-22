@@ -14,7 +14,8 @@ import {
 } from "firebase/auth";
 import { 
   ref as storageRef, 
-  uploadString, 
+  uploadString,
+  uploadBytesResumable, 
   getDownloadURL 
 } from "firebase/storage";
 import { X, Lock, Key, Plus, Trash2, Edit2, Upload, AlertCircle, Save, LogIn } from "lucide-react";
@@ -108,6 +109,78 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
   console.error('Firestore Error: ', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
 }
+
+// Helper function to handle image upload to Firebase Storage with strict timeout and fallback
+const uploadToStorageWithTimeout = async (
+  storageReference: any,
+  base64DataUrl: string,
+  timeoutMs = 15000
+): Promise<string> => {
+  console.log("Preparing to upload image to Firebase Storage path:", storageReference.fullPath);
+
+  // Convert Base64 data URL to Blob
+  const dataURLtoBlob = (dataurl: string): Blob => {
+    const arr = dataurl.split(',');
+    const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  };
+
+  const blob = dataURLtoBlob(base64DataUrl);
+  const uploadTask = uploadBytesResumable(storageReference, blob, { contentType: blob.type });
+
+  return new Promise((resolve, reject) => {
+    let isSettled = false;
+
+    const timer = setTimeout(() => {
+      if (!isSettled) {
+        isSettled = true;
+        console.warn(`Firebase Storage upload timed out after ${timeoutMs / 1000}s. Canceling upload task.`);
+        try {
+          uploadTask.cancel();
+        } catch (e) {
+          console.error("Error canceling upload task:", e);
+        }
+        reject(new Error(`Storage upload timeout (${timeoutMs / 1000}s)`));
+      }
+    }, timeoutMs);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Firebase Storage Upload progress: ${progress.toFixed(1)}%`);
+      },
+      (error) => {
+        if (!isSettled) {
+          isSettled = true;
+          clearTimeout(timer);
+          console.error("Firebase Storage Upload Error:", error);
+          reject(error);
+        }
+      },
+      async () => {
+        if (!isSettled) {
+          isSettled = true;
+          clearTimeout(timer);
+          try {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            console.log("Firebase Storage Upload Succeeded! Download URL:", downloadUrl);
+            resolve(downloadUrl);
+          } catch (err) {
+            console.error("Error getting download URL from Firebase Storage:", err);
+            reject(err);
+          }
+        }
+      }
+    );
+  });
+};
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -386,27 +459,37 @@ export default function AdminPanel({
     setIsUploadingToStorage(true);
     let finalImageUrl = imageUrl.trim();
 
-    // Secure Image Storage Integration: Upload local Base64 to Firebase Storage on save
-    if (pendingImageBase64 && pendingImageBase64.startsWith("data:")) {
-      try {
+    try {
+      // Secure Image Storage Integration with timeout, detailed logging, and fallback
+      if (pendingImageBase64 && pendingImageBase64.startsWith("data:")) {
+        console.log("Starting image upload to Firebase Storage...");
         const fileName = `products/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.jpg`;
         const storageReference = storageRef(storage, fileName);
-        await uploadString(storageReference, pendingImageBase64, "data_url");
-        finalImageUrl = await getDownloadURL(storageReference);
-      } catch (err: any) {
-        console.error("Firebase Storage Upload Error:", err);
-        showStatus(
-          currentLang === "ar"
-            ? "فشل رفع الصورة إلى التخزين الآمن: " + err.message
-            : "Failed uploading image to secure storage: " + err.message,
-          "error"
-        );
-        setIsUploadingToStorage(false);
-        return;
-      }
-    }
 
-    try {
+        try {
+          finalImageUrl = await uploadToStorageWithTimeout(storageReference, pendingImageBase64, 15000);
+          console.log("Firebase Storage Upload Succeeded! Download URL:", finalImageUrl);
+        } catch (storageErr: any) {
+          console.error("Firebase Storage Upload Error / Timeout:", storageErr);
+          console.log("Error details:", { 
+            message: storageErr?.message, 
+            code: storageErr?.code, 
+            stack: storageErr?.stack 
+          });
+
+          // Fall back to client-side compressed base64 data URL if storage upload fails or times out
+          finalImageUrl = pendingImageBase64;
+          const detail = storageErr?.message || String(storageErr);
+
+          showStatus(
+            currentLang === "ar"
+              ? `تنبيه: تعذر رفع الصورة للخادم السحابي (${detail}). تم حفظ الصورة المرفقة بالمنتج مباشرة!`
+              : `Notice: Cloud storage upload skipped (${detail}). Saved product with embedded image.`,
+            "error"
+          );
+        }
+      }
+
       const productPayload = {
         titleAr: finalTitleAr,
         titleEn: finalTitleEn,
