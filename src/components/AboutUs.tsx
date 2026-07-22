@@ -10,6 +10,9 @@ export default function AboutUs({ currentLang }: AboutUsProps) {
   const t = translations[currentLang];
   const isRtl = currentLang === "ar";
 
+  const founderPrefix = currentLang === "ar" ? "المؤسس: " : currentLang === "fr" ? "Fondateur: " : "Founder: ";
+  const FOUNDER_NAME = "Ayoub Kellal";
+
   const badges = [
     {
       id: "quality",
@@ -57,7 +60,7 @@ export default function AboutUs({ currentLang }: AboutUsProps) {
             {/* Core facts tags */}
             <div className={`flex flex-wrap gap-4 mb-10 ${isRtl ? "justify-start flex-row-reverse" : "justify-start"}`}>
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-5 py-2.5 text-xs font-black text-amber-300 shadow-md">
-                {t.aboutFounder}
+                {founderPrefix}{FOUNDER_NAME}
               </div>
               <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl px-5 py-2.5 text-xs font-black text-orange-300 shadow-md">
                 {t.aboutRegion}
