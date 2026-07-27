@@ -56,7 +56,7 @@ export default function ProductCard({
           imageUrl={product.imageUrl}
           category={product.category}
           alt={title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         
         {/* Category Badge overlay */}

@@ -2,7 +2,7 @@ import { ShoppingCart, Lock, Globe, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Language } from "../types";
 import { translations } from "../translations";
-import logoImg from "../assets/images/arganoble_logo_1784487265709.jpg";
+import logoImg from "../assets/images/logo.webp";
 
 interface NavbarProps {
   currentLang: Language;
@@ -103,6 +103,9 @@ export default function Navbar({
               <img 
                 src={logoImg} 
                 alt="ArganOble Logo" 
+                width="56"
+                height="56"
+                decoding="async"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />

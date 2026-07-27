@@ -23,7 +23,7 @@ import CartModal from "./components/CartModal";
 import AdminPanel from "./components/AdminPanel";
 import { translations } from "./translations";
 
-import heroBg from "./assets/images/arganoble_hero_bg_1784433679917.jpg";
+import heroBg from "./assets/images/hero_bg.webp";
 
 export default function App() {
   // Locale State
@@ -166,6 +166,8 @@ export default function App() {
           src={heroBg} 
           alt="" 
           loading="eager"
+          decoding="async"
+          fetchPriority="high"
           className="w-full h-full object-cover opacity-65 pointer-events-none"
           referrerPolicy="no-referrer"
         />
@@ -223,7 +225,7 @@ export default function App() {
                 className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                   selectedCategory === tab.id
                     ? "glow-button-orange"
-                    : "bg-stone-900/30 backdrop-blur-md border border-stone-800/40 hover:border-brand-orange/40 hover:text-brand-orange text-stone-300 hover:bg-stone-900/50"
+                    : "bg-stone-900/80 border border-stone-800/80 hover:border-brand-orange/40 hover:text-brand-orange text-stone-300 hover:bg-stone-900"
                 }`}
               >
                 {tab.label}

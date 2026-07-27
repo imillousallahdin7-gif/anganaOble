@@ -1,7 +1,7 @@
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Language } from "../types";
 import { translations } from "../translations";
-import heroBg from "../assets/images/arganoble_hero_bg_1784433679917.jpg";
+import heroBg from "../assets/images/hero_bg.webp";
 
 interface HeroProps {
   currentLang: Language;
