@@ -1,6 +1,6 @@
 export type Language = "ar" | "en" | "fr";
 
-export type Category = "honey" | "amlou" | "argan";
+export type Category = "honey" | "amlou" | "argan" | "oils";
 
 export interface Product {
   id: string;

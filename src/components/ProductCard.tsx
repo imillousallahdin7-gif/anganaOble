@@ -40,6 +40,7 @@ export default function ProductCard({
       case "honey": return t.categoryHoney;
       case "amlou": return t.categoryAmlou;
       case "argan": return t.categoryArgan;
+      case "oils": return t.categoryOils;
       default: return cat;
     }
   };

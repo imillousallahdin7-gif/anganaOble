@@ -214,7 +214,8 @@ export default function App() {
               { id: "all", label: t.categoriesAll },
               { id: "honey", label: t.categoryHoney },
               { id: "amlou", label: t.categoryAmlou },
-              { id: "argan", label: t.categoryArgan }
+              { id: "argan", label: t.categoryArgan },
+              { id: "oils", label: t.categoryOils }
             ].map((tab) => (
               <button
                 id={`filter-tab-${tab.id}`}

@@ -825,6 +825,7 @@ export default function AdminPanel({
                         <option value="honey">{t.categoryHoney}</option>
                         <option value="amlou">{t.categoryAmlou}</option>
                         <option value="argan">{t.categoryArgan}</option>
+                        <option value="oils">{t.categoryOils}</option>
                       </select>
                     </div>
                     

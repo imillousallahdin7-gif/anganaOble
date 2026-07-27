@@ -123,6 +123,20 @@ export default function ProductImage({ imageUrl, category, alt, className = "" }
         </svg>
       )}
 
+      {(category === "oils" || (category !== "honey" && category !== "amlou" && category !== "argan")) && (
+        <svg className="w-24 h-24 text-amber-500 drop-shadow-md transition-transform duration-300 group-hover:scale-110" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="oilsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#F59E0B" />
+              <stop offset="100%" stopColor="#B45309" />
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="35" fill="#FEF3C7" opacity="0.3" />
+          <path d="M50 18 C40 32 30 46 30 60 C30 71 39 80 50 80 C61 80 70 71 70 60 C70 46 60 32 50 18 Z" fill="url(#oilsGrad)" />
+          <path d="M44 38 C40 46 36 54 36 60 C36 65 39 70 44 72" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" opacity="0.6" />
+        </svg>
+      )}
+
       {/* Product label bottom */}
       <span className="absolute bottom-2 text-[10px] font-mono tracking-widest text-amber-500/80 bg-stone-950/85 px-2.5 py-1 rounded-full uppercase opacity-90 border border-stone-800/40">
         {category}
