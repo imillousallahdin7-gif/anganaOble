@@ -20,8 +20,8 @@ import {
 } from "firebase/storage";
 import { X, Lock, Key, Plus, Trash2, Edit2, Upload, AlertCircle, Save, LogIn } from "lucide-react";
 
-// Convert and compress uploaded images locally using HTML5 canvas
-const compressImage = (base64Str: string, maxWidth = 800, maxHeight = 800, quality = 0.7): Promise<string> => {
+// Convert and compress uploaded images locally using HTML5 canvas (WebP format for ultra-fast load times)
+const compressImage = (base64Str: string, maxWidth = 800, maxHeight = 800, quality = 0.8): Promise<string> => {
   return new Promise((resolve) => {
     const img = new Image();
     img.src = base64Str;
@@ -49,9 +49,13 @@ const compressImage = (base64Str: string, maxWidth = 800, maxHeight = 800, quali
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.drawImage(img, 0, 0, width, height);
-        // Compress to JPEG with the specified quality (renders a small, high-quality base64 string)
-        const compressedBase64 = canvas.toDataURL("image/jpeg", quality);
-        resolve(compressedBase64);
+        // Convert to WebP format if supported for maximum compression
+        const webpData = canvas.toDataURL("image/webp", quality);
+        if (webpData.startsWith("data:image/webp")) {
+          resolve(webpData);
+        } else {
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        }
       } else {
         resolve(base64Str);
       }
@@ -504,7 +508,9 @@ export default function AdminPanel({
         (async () => {
           try {
             console.log("Background: Uploading image to Firebase Storage for product:", targetDocId);
-            const fileName = `products/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.jpg`;
+            const isWebP = base64ToUpload.startsWith("data:image/webp");
+            const ext = isWebP ? "webp" : "jpg";
+            const fileName = `products/${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${ext}`;
             const storageReference = storageRef(storage, fileName);
             const cloudUrl = await uploadToStorageWithTimeout(storageReference, base64ToUpload, 3000);
             if (cloudUrl) {
