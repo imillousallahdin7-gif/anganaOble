@@ -16,6 +16,7 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Features from "./components/Features";
 import ProductCard from "./components/ProductCard";
+import ProductCardSkeleton from "./components/ProductCardSkeleton";
 import ProductDetailModal from "./components/ProductDetailModal";
 import AboutUs from "./components/AboutUs";
 import ContactUs from "./components/ContactUs";
@@ -44,13 +45,28 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // 1. Listen to Products Collection on Snapshot
+  // 1. Listen to Products Collection on Snapshot with instant local cache
   useEffect(() => {
+    // Synchronously check local storage cache for instant 0ms initial load
+    const cached = localStorage.getItem("arganoble_products_cache");
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setProducts(parsed);
+          setLoading(false);
+        }
+      } catch (e) {
+        console.error("Cache parse error:", e);
+      }
+    }
+
     const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
       if (snapshot.empty) {
         setProducts([]);
+        localStorage.removeItem("arganoble_products_cache");
       } else {
         const prodList: Product[] = [];
         snapshot.forEach((doc) => {
@@ -58,6 +74,12 @@ export default function App() {
           prodList.push({ id: doc.id, ...data } as Product);
         });
         setProducts(prodList);
+        // Cache updated products list locally
+        try {
+          localStorage.setItem("arganoble_products_cache", JSON.stringify(prodList));
+        } catch (e) {
+          console.error("Failed to update products cache:", e);
+        }
       }
       setLoading(false);
     }, (error) => {
@@ -234,10 +256,11 @@ export default function App() {
           </div>
 
           {/* Catalog grid */}
-          {loading ? (
-            <div id="products-loading" className="flex flex-col items-center justify-center py-20 gap-3 text-center">
-              <div className="w-10 h-10 border-4 border-stone-800 border-t-brand-orange rounded-full animate-spin" />
-              <p className="text-xs font-semibold text-amber-200/70">Loading authentic Moroccan treasures...</p>
+          {loading && products.length === 0 ? (
+            <div id="products-loading" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[1, 2, 3, 4].map((i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
             </div>
           ) : filteredProducts.length === 0 ? (
             <div id="products-empty" className="text-center py-20 bg-stone-900/25 backdrop-blur-md rounded-3xl border border-stone-800/40 select-none">

@@ -1,5 +1,9 @@
 import { initializeApp } from "firebase/app";
-import { initializeFirestore } from "firebase/firestore";
+import { 
+  initializeFirestore, 
+  persistentLocalCache, 
+  persistentMultipleTabManager 
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import firebaseConfigJson from "../../firebase-applet-config.json";
@@ -14,14 +18,19 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
 export const db = initializeFirestore(
   app,
   {
-    experimentalForceLongPolling: true,
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    }),
+    experimentalForceLongPolling: true
   },
   firebaseConfigJson.firestoreDatabaseId || "ai-studio-arganobleauthent-0defc501-c35f-489a-8980-cd9eb32361d8"
 );
 
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+
 
