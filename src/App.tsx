@@ -161,20 +161,19 @@ export default function App() {
     <div id="arganoble-app-root" className="min-h-screen flex flex-col bg-[#070605] relative overflow-x-hidden text-stone-100" dir={isRtl ? "rtl" : "ltr"}>
       
       {/* Unified Luxury Moroccan Souss Heritage Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden gpu-accelerate">
         <img 
           src={heroBg} 
           alt="" 
           loading="eager"
-          className="w-full h-full object-cover opacity-70 filter scale-105 transition-all duration-1000"
+          className="w-full h-full object-cover opacity-65 pointer-events-none"
           referrerPolicy="no-referrer"
         />
-        {/* Elegant darkening gradient vignette overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#070605]/80 via-[#0c0a09]/50 to-[#070605]/80 pointer-events-none" />
+        {/* Darkening gradient vignette overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#070605]/85 via-[#0c0a09]/60 to-[#070605]/85 pointer-events-none" />
         
-        {/* Ambient background glows */}
-        <div className="absolute top-[10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-brand-orange/10 blur-[120px] pointer-events-none animate-pulse-slow" />
-        <div className="absolute bottom-[20%] right-[-15%] w-[60vw] h-[60vw] rounded-full bg-amber-500/8 blur-[150px] pointer-events-none animate-pulse-slow" style={{ animationDelay: '2s' }} />
+        {/* High-performance CSS radial ambient glows (no heavy GPU blurs) */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_15%,rgba(249,115,22,0.12),transparent_50%),radial-gradient(ellipse_at_85%_85%,rgba(245,158,11,0.08),transparent_50%)] pointer-events-none" />
       </div>
 
       {/* 1. Header Navigation Bar */}

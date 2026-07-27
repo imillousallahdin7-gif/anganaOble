@@ -27,16 +27,19 @@ export default function Navbar({
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // Scroll listener to toggle premium glassmorphism
+  // Scroll listener to toggle header background
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      if (window.scrollY > 40) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 40);
+          ticking = false;
+        });
+        ticking = true;
       }
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -70,11 +73,11 @@ export default function Navbar({
 
   // Class styles depending on scroll state
   const navBgClass = scrolled
-    ? "bg-stone-950/40 backdrop-blur-lg shadow-[0_10px_30px_-15px_rgba(0,0,0,0.5)] border-b border-stone-800/40 text-white h-20"
+    ? "bg-stone-950/95 shadow-xl border-b border-stone-800/80 text-white h-20"
     : "bg-transparent text-white h-24";
 
   const iconBtnClass = scrolled
-    ? "p-2.5 bg-stone-900/40 hover:bg-brand-orange/20 hover:text-brand-orange border border-stone-800/60 text-stone-200 hover:border-brand-orange/40"
+    ? "p-2.5 bg-stone-900 hover:bg-brand-orange/20 hover:text-brand-orange border border-stone-800 text-stone-200 hover:border-brand-orange/40"
     : "p-2.5 bg-white/10 hover:bg-white/20 hover:text-brand-orange border border-white/15 text-white hover:border-brand-orange";
 
   const logoTextClass = "text-white font-black tracking-wide drop-shadow-sm";

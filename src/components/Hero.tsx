@@ -41,7 +41,7 @@ export default function Hero({ currentLang }: HeroProps) {
           {/* Souss Origin Badge */}
           <span 
             id="hero-origin-badge" 
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-amber-500/10 border border-amber-500/25 text-[11px] md:text-xs font-black text-amber-300 uppercase tracking-widest mb-8 animate-fadeIn shadow-lg backdrop-blur-md"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-stone-900/90 border border-amber-500/25 text-[11px] md:text-xs font-black text-amber-300 uppercase tracking-widest mb-8 animate-fadeIn shadow-lg"
           >
             <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
             {currentLang === "ar" ? "جهة سوس الأطلس - منتجات حرة طبيعية" : currentLang === "fr" ? "Origine Souss Atlas - 100% Naturel" : "Souss Atlas Origin - 100% Natural"}
@@ -83,7 +83,7 @@ export default function Hero({ currentLang }: HeroProps) {
               href="https://wa.me/212641933598"
               target="_blank"
               rel="noreferrer"
-              className="w-full sm:w-auto px-10 py-4.5 bg-stone-900/80 backdrop-blur-md text-stone-200 hover:text-brand-orange text-base font-extrabold border border-stone-800 hover:border-brand-orange/40 hover:bg-stone-900/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-2xl rounded-2xl"
+              className="w-full sm:w-auto px-10 py-4.5 bg-stone-900/95 text-stone-200 hover:text-brand-orange text-base font-extrabold border border-stone-800 hover:border-brand-orange/40 hover:bg-stone-900 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-2xl rounded-2xl"
             >
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>{t.contactWhatsapp}</span>

@@ -60,7 +60,7 @@ export default function ProductCard({
         />
         
         {/* Category Badge overlay */}
-        <span className={`absolute top-4.5 ${isRtl ? "right-4.5" : "left-4.5"} bg-stone-950/90 backdrop-blur-md text-amber-400 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl shadow-md z-10 border border-stone-800/80`}>
+        <span className={`absolute top-4.5 ${isRtl ? "right-4.5" : "left-4.5"} bg-stone-950/95 text-amber-400 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-xl shadow-md z-10 border border-stone-800/80`}>
           {getCategoryLabel(product.category)}
         </span>
 
